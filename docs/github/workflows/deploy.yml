@@ -1,0 +1,24 @@
+name: Deploy web
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+      - run: |
+          flutter create build_app --platforms web
+          curl -L https://gist.githubusercontent.com/yaswanthkumarthota237-sudo/cdd1e556a92df6bd2df6b8668de9e509/raw/main.dart -o build_app/lib/main.dart
+          cd build_app
+          flutter build web --release --base-href /studybuddy/
+      - uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./build_app/build/web
